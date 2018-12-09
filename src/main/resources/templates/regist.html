@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/pagePubTop.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/error.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(function(){
+                $("#userName").blur(function(){
+                    VerUserName();
+                });
+                $("#userName").click(function(){
+                    $("#userNameError").text("");
+                });
+                
+                $("#nickName").blur(function(){
+                    VerNickName();
+                });
+                $("#nickName").click(function(){
+                    $("#nickNameError").text("");
+                });
+                
+                $("#email").blur(function(){
+                    VerEmail();
+                });
+                $("#email").click(function(){
+                    $("#emailError").text("");
+                });
+                
+                $("#password").blur(function(){
+                    VerPassword();
+                });
+                $("#password").click(function(){
+                    $("#passwordError").text("");
+                });
+                
+                $("#password2").blur(function(){
+                    VerPassword2();
+                });
+                $("#password2").click(function(){
+                    $("#password2Error").text("");
+                });
+                
+                $("#registForm").submit(function(){
+                    ClearErrorSpan();
+                    if(VerUserName() == false || VerNickName() == false || VerEmail() == false || VerPassword() == false || VerPassword2() == false){
+                        return false;
+                    }
+                });
+                
+                ChangeImg();//调用change函数 
+            });
+            
+            var imgArray = new Array("/image/loginpageimage1.jpg","/image/loginpageimage2.jpg", "/image/loginpageimage3.jpg","/image/loginpageimage4.jpg","/image/loginpageimage5.jpg");
+            var i=0; //计数器
+            var len = imgArray.length;//imgArray数组长度
+            
+            function ChangeImg() {
+                //若i小于imgArray数组长度，递归调用change()函数
+                if (i < len) {
+                    $("#img").attr("src", imgArray[i++]);//改变img的src属性
+                    if(i == len){
+                        i =0;
+                    }
+                    setTimeout("ChangeImg()", 2000);//设置2秒刷新一次
+                }
+            }
+            
+            function ClearErrorSpan(){
+                $("#userNameError").text("");
+                $("#nickNameError").text("");
+                $("#emailError").text("");
+                $("#passwordError").text("");
+                $("#password2Error").text("");
+            }
+            
+            function VerUserName(){
+                var userName = $("#userName").val();
+                if(userName.length < 6 || userName.length > 20){
+                    $("#userNameError").text("账号需为6-20位字母或数字");
+                    return false;
+                }
+                var verResult = false;
+                $.ajax({
+                    type:"post",
+                    url:"/webnote/userRest/verUserName",
+                    async:false, 
+                    data:{
+                        userName : userName
+                    },
+                    dataType:"text",
+                    success:function(result){
+                        if("success" == result){
+                            verResult = true;
+                        }
+                        if("success" != result){
+                            $("#userNameError").text(result);
+                        }
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+                return verResult;
+            }
+            
+            function VerNickName(){
+                var nickName = $("#nickName").val();
+                if("" == nickName){
+                    $("#nickNameError").text("昵称不能为空");
+                    return false;
+                }
+                if(!(/^[A-Za-z0-9\u2E80-\u9FFF]{2,20}$/.test(nickName))){
+                    $("#nickNameError").text("需2-20个汉字、字母或数字");
+                    return false;
+                }
+            }
+            
+            function VerEmail(){
+                var email =$("#email").val();
+                if("" == email){
+                    $("#emailError").text("邮箱不能为空");
+                    return false;
+                }
+                if(!(/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email))){
+                    $("#emailError").text("邮箱格式错误");
+                    return false;
+                }
+            }
+            
+            function VerPassword(){
+                var password = $("#password").val();
+                if("" == password){
+                    $("#passwordError").text("密码不能为空");
+                    return false;
+                }
+                if(password.length < 6 || password.length > 20){
+                    $("#passwordError").text("密码需为6-20位字母或数字");
+                    return false;
+                }
+            }
+            
+            function VerPassword2(){
+                var password = $("#password").val();
+                var password2 = $("#password2").val();
+                if(password2 != password){
+                    $("#password2Error").text("两次密码输入不一致");
+                    return false;
+                }
+            }
+            
+        </script>
+    </head>      
+        
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎使用网上笔记!!&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{/webnote/main}" class="topLink">返回登录页</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8082/webnote/usermanage/login}" class="topLink">进入管理员系统</a>
+                        </div> 
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="maintd" style="background: url(/image/loginbackground.jpg);">
+                    
+                    <div style="float:left; height: 300px; width: 500px; margin-top:200px;margin-left: 50px;">
+                        <img style="width:500px;height:300px;" id="img">
+                    </div>
+                    <div style="float:left; height: 300px; width: 500px; margin-top:300px;margin-left: 50px;">
+                        <form th:action="@{/webnote/user/regist}" method="post" id="registForm">
+                            <table style="width:500px;">
+                                <tr><td class="left" colspan="3" style="font-size: small;">欢迎注册网上笔记!! 请填写以下资料进行注册。</td></tr>
+                                <tr><td colspan="3"></td></tr>
+                                <tr>
+                                    <td style="width:140px;">账号：</td>
+                                    <td>
+                                        <input type="text" name="userName" id="userName" class="input" onkeyup="value=value.replace(/[^\w]/ig,'')" th:if="${result == null}">
+                                        <input type="text" name="userName" id="userName" class="input" onkeyup="value=value.replace(/[^\w]/ig,'')" th:if="${result != null}" th:value="${result.userName}">
+                                    </td>
+                                    <td style="width:160px;">
+                                        <span id="userNameError" class="errorspan" th:if="${result == null}"></span>
+                                        <span id="userNameError" class="errorspan" th:if="${result != null}" th:text="${result.userNameError}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>用户昵称：</td>
+                                    <td>
+                                        <input type="text" name="nickName" id="nickName" class="input" th:if="${result == null}">
+                                        <input type="text" name="nickName" id="nickName" class="input" th:if="${result != null}" th:value="${result.nickName}">
+                                    </td>
+                                    <td>
+                                        <span id="nickNameError" class="errorspan" th:if="${result == null}"></span>
+                                        <span id="nickNameError" class="errorspan" th:if="${result != null}" th:text="${result.nickNameError}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>邮箱：</td>
+                                    <td>
+                                        <input type="text" name="email" id="email" class="input" th:if="${result == null}">
+                                        <input type="text" name="email" id="email" class="input" th:if="${result != null}" th:value="${result.email}">
+                                    </td>
+                                    <td>
+                                        <span id="emailError" class="errorspan" th:if="${result == null}"></span>
+                                        <span id="emailError" class="errorspan" th:if="${result != null}" th:text="${result.emailError}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>密码：</td>
+                                    <td>
+                                        <input type="password" name="password" id="password" class="input" onkeyup="value=value.replace(/[^\w]/ig,'')" th:if="${result == null}">
+                                        <input type="password" name="password" id="password" class="input" onkeyup="value=value.replace(/[^\w]/ig,'')" th:if="${result != null}" th:value="${result.password}">
+                                    </td>
+                                    <td>
+                                        <span id="passwordError" class="errorspan" th:if="${result == null}"></span>
+                                        <span id="passwordError" class="errorspan" th:if="${result != null}" th:text="${result.passwordError}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>重复密码：</td>
+                                    <td>
+                                        <input type="password" name="password2" id="password2" class="input" onkeyup="value=value.replace(/[^\w]/ig,'')" th:if="${result == null}">
+                                        <input type="password" name="password2" id="password2" class="input" onkeyup="value=value.replace(/[^\w]/ig,'')" th:if="${result != null}" th:value="${result.password2}">
+                                    </td>
+                                    <td>
+                                        <span id="password2Error" class="errorspan" th:if="${result == null}"></span>
+                                        <span id="password2Error" class="errorspan" th:if="${result != null}" th:text="${result.password2Error}"></span>
+                                    </td>
+                                </tr>
+                                <tr><td colspan="3"></td></tr>
+                                <tr><td colspan="3"><input type="submit" value="   注  册  新  用  户   " class="orange medium"></td></tr>
+                                <tr><td colspan="3"><a href="main.html" th:href="@{/webnote/main}" style="color: green;">已有账号，直接登录</a></td></tr>
+                            </table>
+                        </form>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>

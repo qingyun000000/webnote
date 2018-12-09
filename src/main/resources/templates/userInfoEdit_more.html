@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/error.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(function(){
+                $(".input").click(function(){
+                    var ErrorName = "#" + $(this).attr("id") + "Error";
+                    $(ErrorName).text("");
+                });
+                $(".input").blur(function(){
+                    var ErrorName = "#" + $(this).attr("id") + "Error";
+                    if($(this).val().length > 30){
+                        $(ErrorName).text("长度不超过30个字符");
+                    }
+                    if(!(/^[A-Za-z0-9\u2E80-\u9FFF\s]*$/.test($(this).val()))){
+                        $(ErrorName).text("限汉字、字母、数字和空格");
+                    }
+                });
+                
+                $("#updateMoreForm").submit(function(){
+                    var result = true;
+                    $(".input").each(function(){
+                        var ErrorName = "#" + $(this).attr("id") + "Error";
+                        if($(this).val().length > 30){
+                            $(ErrorName).text("长度不超过30个字符");
+                            result = false;
+                        }
+                        if(!(/^[A-Za-z0-9\u2E80-\u9FFF\s]*$/.test($(this).val()))){
+                            $(ErrorName).text("限汉字、字母、数字和空格");
+                            result = false;
+                        }
+                    });
+                    return result;
+                });
+            });
+        </script>
+        
+    </head>
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎 <span th:text="${session.sessionUser.nickName}" style="font-size: 20px; color: blueviolet;"></span> 登录网上笔记!!<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<a href="main.html" th:href="@{http://localhost:8080/webnote/user/logout}" style="color: green;">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8083/webnote/score/myscore}" style="color: green;">积分系统</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8080/webnote/user/userInfo}" style="color: green;">用户信息</a>
+                        </div> 
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="maintd" style="background: url(/image/notebackground.jpg); ">
+                    <div style="background: url(/image/userInfoBackground.jpg); margin-top: 50px; margin-left: 120px; width:900px;height: 500px;">
+                        <div style="float:left; width:140px; height:480px; margin-top: 50px; margin-left: 100px; font-size: 24px;">
+                        <table>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit}" style="color: green;margin-left: 25px;">基本信息</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_2}" style="color: green;margin-left: 25px;">个人介绍</a></td></tr>
+                            <tr><td style="height: 40px;"><span style="color: blue;margin-left: 25px;">补充信息</span></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_4}" style="color: green;margin-left: 25px;">头像上传</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_5}" style="color: green;margin-left: 25px;">修改密码</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_6}" style="color: green;margin-left: 25px;">修改邮箱</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_7}" style="color: green;margin-left: 25px;">手机绑定</a></td></tr>
+                        </table>
+                        </div>
+                        <div style="float:left; width:500px; height:480px; margin-top: 80px; margin-left: 150px; ">
+                        <form th:action="@{/webnote/user/updateMoreInfo}" method="post" id="updateMoreForm">
+                        <table>
+                            <tr><td colspan="2">&nbsp;
+                                    <span id="sucessspan" style="color:green;" th:text="${msgSuccess}"></span>
+                                </td><td></td></tr>
+                            <tr><td>最高学历：</td>
+                                <td>
+                                    <input id="highestEducation" class="input" type="text" name="highestEducation" th:value="${info.highestEducation}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                    <input id="highestEducation" class="input" type="text" name="highestEducation" th:value="${result.highestEducation}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                </td>
+                                <td style="width:180px;">
+                                    <span id="highestEducationError" class="errorspan" th:if="${result == null}"></span>
+                                    <span id="highestEducationError" class="errorspan" th:text="${result.highestEducationError}" th:if="${result != null}"></span>
+                                </td>
+                            </tr>
+                            <tr><td>毕业学校：</td>
+                                <td>
+                                    <input id="highestEducationUniversity" class="input" type="text" name="highestEducationUniversity" th:value="${info.highestEducationUniversity}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                    <input id="highestEducation" class="input" type="text" name="highestEducationUniversity" th:value="${result.highestEducationUniversity}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                </td>
+                                <td style="width:180px;">
+                                    <span id="highestEducationUniversityError" class="errorspan" th:if="${result == null}"></span>
+                                    <span id="highestEducationUniversityError" class="errorspan" th:text="${result.highestEducationUniversityError}" th:if="${result != null}"></span>
+                                </td>
+                            </tr>
+                            <tr><td>第二学历：</td>
+                                <td>
+                                    <input id="secondEducation" class="input" type="text" name="secondEducation" th:value="${info.secondEducation}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                    <input id="secondEducation" class="input" type="text" name="secondEducation" th:value="${result.secondEducation}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                </td>
+                                <td style="width:180px;">
+                                    <span id="secondEducationError" class="errorspan" th:if="${result == null}"></span>
+                                    <span id="secondEducationError" class="errorspan" th:text="${result.secondEducationError}" th:if="${result != null}"></span>
+                                </td>
+                            </tr>
+                            <tr><td>毕业学校：</td>
+                                <td>
+                                    <input id="secondEducationUniversity" class="input" type="text" name="secondEducationUniversity" th:value="${info.secondEducationUniversity}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                    <input id="secondEducationUniversity" class="input" type="text" name="secondEducationUniversity" th:value="${result.secondEducationUniversity}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                </td>
+                                <td style="width:180px;">
+                                    <span id="secondEducationUniversityError" class="errorspan" th:if="${result == null}"></span>
+                                    <span id="secondEducationUniversityError" class="errorspan" th:text="${result.secondEducationUniversityError}" th:if="${result != null}"></span>
+                                </td>
+                            </tr>
+                            <tr><td>兴趣爱好：</td>
+                                <td><input id="interests" class="input" type="text" name="interests" th:value="${info.interests}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                    <input id="interests" class="input" type="text" name="interests" th:value="${result.interests}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                </td>
+                                <td>
+                                    <span id="interestsError" class="errorspan" th:if="${result == null}"></span>
+                                    <span id="interestsError" class="errorspan" th:text="${result.interestsError}" th:if="${result != null}"></span>
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp;</td></tr>
+                            <tr><td colspan="3"><input type="submit" style="height:40px; width: 100px;" class="blue" value="保存信息"></td></tr>
+                        </table>
+                        </form>
+                        </div>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>
