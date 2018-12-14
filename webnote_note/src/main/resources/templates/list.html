@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/table1.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <script type="text/javascript">
+            var index = 1;
+            $(function(){
+                $(".imageNoteShow").click(function(){
+                   $(this).css("zIndex",""+index);
+                   var id = $(this).attr("id");
+                   $("#desc"+ id).css("zIndex",""+index);
+                   index = index + 3;
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎 <span th:text=${session.sessionUser.nickName} style="font-size: 20px; color: blueviolet;"></span> 登录网上笔记!!<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<a href="main.html" th:href="@{http://localhost:8080/webnote/user/logout}" style="color: green;">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8083/webnote/score/myscore}" style="color: green;">积分系统</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8080/webnote/user/userInfo}" style="color: green;">用户信息</a>
+                        </div> 
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><span th:utext="${msg}"></span></td>
+                <td id="maintd">
+                    <div style="width: 350px;height: 650px;margin-left: 20px; margin-top: 30px;float:left">
+                        <h3>文字笔记</h3>
+                        <div th:each="note,iterStat: ${notes}"  style="width:300px;height: 100px; background: url(/image/BlueTextBorder_300_100.jpg);margin-left: 20px; margin-top: 10px;text-align: left;">
+                            <a href="main.html" th:href="@{/webnote/note/showNote(id=${note.id})}" >
+                            <div>
+                                <br/>
+                                <div style="width:200px;height: 60px; text-overflow: ellipsis;overflow: hidden; margin-left: 50px;" th:text="${note.noteTitle}" th:title="${note.noteTitle}">
+                                </div>
+                            </div>
+                            <span th:text="${#dates.format(note.updateTime, 'yyyy-MM-dd HH:mm')}" style="margin-left: 50px;"></span>
+                            <div style="position:relative; left: 270px; top: -30px; width:30px;">
+                                <span th:text="${iterStat.count + (page.showPage-1) * page.countOfOnePage }"></span>
+                            </div>
+                            </a>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage=1)}" th:if="${page.showPage != 1}">首页</a>
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage=${page.showPage - 1})}" th:if="${page.showPage != 1}">上页</a>
+                            <span th:each="pageNum : ${page.allPage}">
+                                <a href="main.html" th:href="@{/webnote/note/list(showPage=${pageNum})}" th:if="${pageNum != page.showPage}"><button th:text="${pageNum}" class="small blue"></button></a>
+                                <button th:text="${pageNum}" class="small gray" th:if="${pageNum == page.showPage}"></button>
+                            </span>
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage=${page.showPage + 1})}" th:if="${page.showPage != page.totalPage}">下页</a>
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage=${page.totalPage})}" th:if="${page.showPage != page.totalPage}">尾页</a><br/>
+                            <span style="font-size: smaller; color:green;">
+                                第<span th:text="${page.showPage}"></span>页&nbsp;&nbsp;&nbsp;&nbsp;共<span th:text="${page.totalPage}"></span>页&nbsp;&nbsp;&nbsp;&nbsp;每页<span th:text="${page.countOfOnePage}"></span>条
+                            </span>
+                        </div>
+                                
+                    </div>
+                    <div style="width: 100px;height: 650px;margin-left: 20px; margin-top: 60px;float:left">
+                        <a style="margin-top: 100px;" th:href="@{/webnote/note/addPre}">
+                            <img th:src="@{/image/AndBtn_100_100.jpg}" style="width:100px;height: 100px;">
+                        </a><br/>
+                        新增文本笔记
+                        <br/><br/><br/>
+                        <a style="margin-top: 100px;" th:href="@{/webnote/note/addImageNotePre}">
+                            <img th:src="@{/image/AndBtn2_100_100.jpg}" style="width:100px;height: 100px;">
+                        </a><br/>
+                        新增心情照片
+                        <br/><br/><br/>
+                        <a style="margin-top: 100px;" th:href="@{http://localhost:8084/webnote/richText/addPre}">
+                            <img th:src="@{/image/AndBtn3_100_100.jpg}" style="width:100px;height: 100px;">
+                        </a><br/>
+                        富文本笔记（待开发）
+                        <br/><br/><br/>
+                        <a style="margin-top: 100px;" th:href="@{http://localhost:8085/webnote/richText/addPre}">
+                            <img th:src="@{/image/AndBtn4_100_100.jpg}" style="width:100px;height: 100px;">
+                        </a><br/>
+                        个人主页（待开发）
+                    </div>
+                    
+                    <div style="float:left; height: 300px; width: 600px; margin-top:30px;margin-left: 50px;position: relative;">
+                        <h3>心情照片</h3>
+                        <img th:id="${iterStat.index}" class="imageNoteShow" th:style="'width:400px;height:240px; position:absolute; left:'+ ${iterStat.index * 100} + 'px;top:'+ ${iterStat.index * 30 +50} + 'px;'"
+                             th:each="imagenote,iterStat:${images}" th:src="@{/image/imageNote/{imgUrl}(imgUrl=${imagenote.imgUrl})}">
+                        <div th:id="'desc' + ${iterStat.index}" style="margin-top: 310px;position: absolute; background:white;width: 600px;height: 60px;" th:each="imagenote,iterStat:${images}">
+                            <span th:text="${imagenote.description}"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="@{/webnote/note/showImageNote(id=${imagenote.id})}">详细</a>
+                        </div>
+                        <div style="margin-top: 390px;">
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage_image=1)}" th:if="${page.showPage_image != 1}">首页</a>
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage_image=${page.showPage_image - 1})}" th:if="${page.showPage_image != 1}">上页</a>
+                            <span th:each="pageNum_image : ${page.allPageImage}">
+                                <a href="main.html" th:href="@{/webnote/note/list(showPage_image=${pageNum_image})}" th:if="${pageNum_image != page.showPage_image}"><button th:text="${pageNum_image}" class="small blue"></button></a>
+                                <button th:text="${pageNum_image}" class="small gray" th:if="${pageNum_image == page.showPage_image}"></button>
+                            </span>
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage_image=${page.showPage_image + 1})}" th:if="${page.showPage_image != page.totalPage_image}">下页</a>
+                            <a href="main.html" th:href="@{/webnote/note/list(showPage_image=${page.totalPage_image})}" th:if="${page.showPage_image != page.totalPage_image}">尾页</a><br/>
+                            <span style="font-size: smaller; color:green;">
+                                第<span th:text="${page.showPage_image}"></span>页&nbsp;&nbsp;&nbsp;&nbsp;共<span th:text="${page.totalPage_image}"></span>页&nbsp;&nbsp;&nbsp;&nbsp;每页<span th:text="${page.countOfOnePage_image}"></span>条
+                            </span>
+                        </div>
+                        
+                        <div style="margin-top: 30px;border:solid blue; height: 150px;">
+                            <h1 style="color:blue;">消息模块，待开发</h1>
+                        </div>
+                    </div>
+                    
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>

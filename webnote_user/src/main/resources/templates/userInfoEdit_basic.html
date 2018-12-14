@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/error.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(function(){
+                $("#nickName").blur(function(){
+                    VerNickName();
+                });
+                $("#nickName").click(function(){
+                    $("#nickNameError").text("");
+                });
+                $("#gender").blur(function(){
+                    VerGender();
+                });
+                $("#gender").click(function(){
+                    $("#genderError").text("");
+                });
+                $("#naiton").blur(function(){
+                    VerNation();
+                });
+                $("#nation").click(function(){
+                    $("#nationError").text("");
+                });
+                $("#address").blur(function(){
+                    VerAddress();
+                });
+                $("#address").click(function(){
+                    $("#addressError").text("");
+                });
+                
+                $("#updateInfoForm").submit(function(){
+                    if(VerNickName() == false || VerGender() == false || VerNation() == false || VerAddress() == false){
+                        return false;
+                    }
+                });
+            });
+            
+            function VerNickName(){
+                var nickName = $("#nickName").val();
+                if("" == nickName){
+                    $("#nickNameError").text("昵称不能为空");
+                    return false;
+                }
+                if(!(/^[A-Za-z0-9\u2E80-\u9FFF]{2,20}$/.test(nickName))){
+                    $("#nickNameError").text("需2-20个汉字、字母或数字");
+                    return false;
+                }
+            }
+            
+            function VerGender(){
+                var gender = $("#gender").val();
+                if(gender != "男" && gender != "女" && gender != "保密"){
+                    $("#genderError").text("性别信息错误");
+                    return false;
+                }
+            }
+            
+            function VerNation(){
+                var nation = $("#nation").val();
+                if(!(/^[A-Za-z0-9\u2E80-\u9FFF]{0,15}$/.test(nation))){
+                    $("#nationError").text("限15个汉字、字母、数字");
+                    return false;
+                }
+            }
+            
+            function VerAddress(){
+                var address = $("#address").val();
+                if(!(/^[A-Za-z0-9\u2E80-\u9FFF]{0,30}$/.test(address))){
+                    $("#addressError").text("限30个汉字、字母、数字");
+                    return false;
+                }
+            }
+        </script>
+        
+    </head>
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎 <span th:text="${session.sessionUser.nickName}" style="font-size: 20px; color: blueviolet;"></span> 登录网上笔记!!<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<a href="main.html" th:href="@{http://localhost:8080/webnote/user/logout}" style="color: green;">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8083/webnote/score/myscore}" style="color: green;">积分系统</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8080/webnote/user/userInfo}" style="color: green;">用户信息</a>
+                        </div> 
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="maintd" style="background: url(/image/notebackground.jpg); ">
+                    <div style="background: url(/image/userInfoBackground.jpg); margin-top: 50px; margin-left: 120px; width:900px;height: 500px;">
+                        <div style="float:left; width:140px; height:480px; margin-top: 50px; margin-left: 100px; font-size: 24px;">
+                        <table>
+                            <tr><td style="height: 40px;"><span style="color: blue;margin-left: 25px;">基本信息</span></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_2}" style="color: green;margin-left: 25px;">个人介绍</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_3}" style="color: green;margin-left: 25px;">补充信息</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_4}" style="color: green;margin-left: 25px;">头像上传</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_5}" style="color: green;margin-left: 25px;">修改密码</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_6}" style="color: green;margin-left: 25px;">修改邮箱</a></td></tr>
+                            <tr><td style="height: 40px;"><a href="main.html" th:href="@{/webnote/user/userInfoEdit_7}" style="color: green;margin-left: 25px;">手机绑定</a></td></tr>
+                        </table>
+                        </div>
+                        <div style="float:left; width:500px; height:480px; margin-top: 80px; margin-left: 150px; ">
+                            <form th:action="@{/webnote/user/updateUserInfo}" method="post" id="updateInfoForm">
+                                <table style="text-align: left;">
+                                    <tr><td>用户账户：</td><td th:text="${session.sessionUser.userName}"></td><td style="width:180px;"></td></tr>
+                                    <tr><td>注册邮箱：</td><td th:text="${session.sessionUser.email}"></td><td></td></tr>
+                                    <tr><td>用户昵称：</td><td><input id="nickName" type="text" name="nickName" th:value="${session.sessionUser.nickName}" style="height:20px;width: 200px;"></td><td><span class="errorspan" id="nickNameError"></span></td></tr>
+                                    <tr><td>性别：</td><td>
+                                            <input id="gender" type="radio" name="gender" value="男" checked="checked" th:if="${result == null and info.gender == '男'}">
+                                            <input id="gender" type="radio" name="gender" value="男" checked="checked" th:if="${result != null and result.gender == '男'}">
+                                            <input id="gender" type="radio" name="gender" value="男" th:if="${result == null and info.gender != '男'}">
+                                            <input id="gender" type="radio" name="gender" value="男" th:if="${result != null and result.gender != '男'}">
+                                            男&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <input id="gender" type="radio" name="gender" value="女" checked="checked" th:if="${result == null and info.gender == '女'}">
+                                            <input id="gender" type="radio" name="gender" value="女" checked="checked" th:if="${result != null and result.gender == '女'}">
+                                            <input id="gender" type="radio" name="gender" value="女" th:if="${result == null and info.gender != '女'}" >
+                                            <input id="gender" type="radio" name="gender" value="女" th:if="${result != null and result.gender != '女'}">
+                                            女&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <input id="gender" type="radio" name="gender" value="保密" checked="checked" th:if="${result == null and info.gender == '保密'}">
+                                            <input id="gender" type="radio" name="gender" value="保密" checked="checked" th:if="${result != null and result.gender == '保密'}">
+                                            <input id="gender" type="radio" name="gender" value="保密" th:if="${result == null and info.gender != '保密'}">
+                                            <input id="gender" type="radio" name="gender" value="保密" th:if="${result != null and result.gender != '保密'}">
+                                            保密&nbsp;&nbsp;&nbsp;&nbsp;
+                                        </td>
+                                        <td>
+                                            <span id="genderError" class="errorspan" th:if="${result == null}"></span>
+                                            <span id="genderError" class="errorspan" th:text="${result.genderError}" th:if="${result != null}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr><td>生日：</td><td>
+                                            <input id="birthday" type="date" name="birthdayString" th:value="${#dates.format(info.birthday, 'yyyy-MM-dd')}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                            <input id="birthday" type="date" name="birthdayString" th:value="${#dates.format(result.birthday, 'yyyy-MM-dd')}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                        </td>
+                                        <td>
+                                            <span id="birthdayError" class="errorspan" th:if="${result == null}"></span>
+                                            <span id="birthdayError" class="errorspan" th:text="${result.birthdayError}" th:if="${result != null}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr><td>民族：</td><td>
+                                            <input id="nation" type="text" name="nation" th:value="${info.nation}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                            <input id="nation" type="text" name="nation" th:value="${result.nation}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                        </td>
+                                        <td>
+                                            <span id="nationError" class="errorspan" th:if="${result == null}"></span>
+                                            <span id="nationError" class="errorspan" th:text="${result.nationError}" th:if="${result != null}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr><td>所在地：</td><td>
+                                            <input id="address" type="text" name="address" th:value="${info.address}" style="height:20px;width: 200px;" th:if="${result == null}">
+                                            <input id="address" type="text" name="address" th:value="${result.address}" style="height:20px;width: 200px;" th:if="${result != null}">
+                                        </td>
+                                        <td>
+                                            <span id="addressError" class="errorspan" th:if="${result == null}"></span>
+                                            <span id="addressError" class="errorspan" th:text="${result.addressError}" th:if="${result != null}"></span>
+                                        </td>
+                                    </tr>
+                                    <tr><td colspan="3">&nbsp;</td></tr>
+                                    <tr><td colspan="2" style="text-align: center;"><input type="submit" class="blue" style="height:40px; width: 100px;" value=" 提 交 修 改 "></td></tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                    
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>

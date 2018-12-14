@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/error.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/table1.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(function(){
+                $("#managerListBtn").click(function(){
+                    if($("#sessionUserName").text() == "admin"){
+                        ClearResultDiv();
+                        GetManagerList(0);
+                    }else{
+                        alert("非超级管理员，没有权限查看管理员列表");
+                    }
+                    return false;
+                });
+                $("#showUserList").click(function(){
+                    ClearResultDiv();
+                    GetUserList(0, "", "");
+                    return false;
+                });
+                $("#showMenUserList").click(function(){
+                    ClearResultDiv();
+                    GetUserList(0, "男", "");
+                    return false;
+                });
+                $("#showWomenUserList").click(function(){
+                    ClearResultDiv();
+                    GetUserList(0, "女","");
+                    return false;
+                });
+                $("#showUserListByKeyword").click(function(){
+                    ClearResultDiv();
+                    var keyword = $("#keyword").val();
+                    GetUserList(0, "", keyword);
+                    return false;
+                });
+                $("#CloseUserInfoDivBtn").click(function(){
+                    $("#userInfo").css("display","none");
+                });
+                
+                $("#addManagerBtn").click(function(){
+                    if($("#sessionUserName").text() == "admin"){
+                        ClearResultDiv();
+                        ShowAddManager();
+                    }else{
+                        alert("非超级管理员，没有权限查看管理员列表");
+                    }
+                    return false;
+                });
+                $("#updatePasswordBtn").click(function(){
+                    ClearResultDiv();
+                    ShowUpdatePassword();
+                    return false;
+                });
+                
+                $("#managerNameAdd").blur(function(){
+                    VerManagerNameAdd();
+                });
+                $("#managerNameAdd").click(function(){
+                    $("#managerNameAddError").text("");
+                });
+                $("#managerPasswordAdd").blur(function(){
+                    VerManagerPasswordAdd();
+                });
+                $("#managerPasswordAdd").click(function(){
+                    $("#managerPasswordAddError").text("");
+                });
+                $("#managerPassword2Add").blur(function(){
+                    VerManagerPassword2Add();
+                });
+                $("#managerPassword2Add").click(function(){
+                    $("#managerPassword2AddError").text("");
+                });
+                
+                $("#addManagerForm").submit(function(){
+                    if(VerManagerNameAdd() == false || VerManagerPasswordAdd() == false || VerManagerPassword2Add() == false){
+                        return false;
+                    }else{
+                        AddManager();
+                        return false;
+                    }
+                });
+                
+                
+                $("#managerPasswordUpdate").blur(function(){
+                    VerManagerPasswordUpdate();
+                });
+                $("#managerPasswordUpdate").click(function(){
+                    $("#managerPasswordUpdateError").text("");
+                });
+                $("#managerPasswordNewUpdate").blur(function(){
+                    VerManagerPasswordNewUpdate();
+                });
+                $("#managerPasswordNewUpdate").click(function(){
+                    $("#managerPasswordNewUpdateError").text("");
+                });
+                $("#managerPassword2Update").blur(function(){
+                    VerManagerPassword2Update();
+                });
+                $("#managerPassword2Update").click(function(){
+                    $("#managerPassword2UpdateError").text("");
+                });
+                
+                $("#updatePasswordForm").submit(function(){
+                    if(VerManagerPasswordUpdate() == false || VerManagerPasswordNewUpdate() == false || VerManagerPassword2Update() == false){
+                        return false;
+                    }else{
+                        UpdatePassword();
+                        return false;
+                    }
+                });
+
+            });
+            
+            function UpdatePassword(){
+                var managerPassword = $("#managerPasswordUpdate").val();
+                var managerPasswordNew = $("#managerPasswordNewUpdate").val();
+                var managerPassword2 = $("#managerPassword2Update").val();
+                $.ajax({
+                    type:"post",
+                    url:"/webnote/managerRest/updatePassword",
+                    async:false, 
+                    data:{
+                        managerPassword : managerPassword,
+                        managerPasswordNew : managerPasswordNew,
+                        managerPassword2 : managerPassword2
+                    },
+                    dataType:"json",
+                    success:function(result){
+                        if("success" == result.resultMessage){
+                            alert("修改密码成功！！");
+                            ClearResultDiv();
+                        }
+                        if("success" != result.resultMessage){
+                            alert(result.resultMessage);
+                            $("#managerPasswordUpdateError").text(result.managerPasswordError);
+                            $("#managerPasswordNewUpdateError").text(result.managerPasswordNewError);
+                            $("#managerPassword2UpdateError").text(result.managerPassword2Error);
+                        }
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+            }
+            
+            function AddManager(){
+                var managerName = $("#managerNameAdd").val();
+                var managerPassword = $("#managerPasswordAdd").val();
+                var managerPassword2 = $("#managerPassword2Add").val();
+                $.ajax({
+                    type:"post",
+                    url:"/webnote/managerRest/addManager",
+                    async:false, 
+                    data:{
+                        managerName : managerName,
+                        managerPassword : managerPassword,
+                        managerPassword2 : managerPassword2
+                    },
+                    dataType:"json",
+                    success:function(result){
+                        if("success" == result.resultMessage){
+                            alert("新增管理员：" + managerName +"成功！！");
+                            ClearResultDiv();
+                            GetManagerList();
+                        }
+                        if("success" != result.resultMessage){
+                            alert(result.resultMessage);
+                            $("#managerNameAddError").text(result.managerNameError);
+                            $("#managerPasswordAddError").text(result.managerPasswordError);
+                            $("#managerPassword2AddError").text(result.managerPassword2Error);
+                        }
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+            }
+            
+            function VerManagerNameAdd(){
+                var managerName = $("#managerNameAdd").val();
+                if(managerName.length < 6 || managerName.length > 20){
+                    $("#managerNameAddError").text("账号需为6-20位字母或数字");
+                    return false;
+                }
+                var verResult = false;
+                $.ajax({
+                    type:"post",
+                    url:"/webnote/managerRest/verManagerNameAdd",
+                    async:false, 
+                    data:{
+                        managerName : managerName
+                    },
+                    dataType:"text",
+                    success:function(result){
+                        if("success" == result){
+                            verResult = true;
+                        }
+                        if("success" != result){
+                            $("#managerNameAddError").text(result);
+                        }
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+                return verResult;
+            }
+            
+            function VerManagerPasswordAdd(){
+                var managerPassword = $("#managerPasswordAdd").val();
+                if("" == managerPassword){
+                    $("#managerPasswordAddError").text("密码不能为空");
+                    return false;
+                }
+                if(managerPassword.length < 6 || managerPassword.length > 20){
+                    $("#managerPasswordAddError").text("密码需为6-20位字母或数字");
+                    return false;
+                }
+            }
+            
+            function VerManagerPasswordUpdate(){
+                var managerPassword = $("#managerPasswordUpdate").val();
+                if("" == managerPassword){
+                    $("#managerPasswordUpdateError").text("密码不能为空");
+                    return false;
+                }
+                if(managerPassword.length < 6 || managerPassword.length > 20){
+                    $("#managerPasswordUpdateError").text("密码需为6-20位字母或数字");
+                    return false;
+                }
+                var verResult = false;
+                $.ajax({
+                    type:"post",
+                    url:"/webnote/managerRest/verManagerPasswordUpdate",
+                    async:false, 
+                    data:{
+                        managerPassword : managerPassword
+                    },
+                    dataType:"text",
+                    success:function(result){
+                        if("success" == result){
+                            verResult = true;
+                        }
+                        if("success" != result){
+                            $("#managerPasswordUpdateError").text(result);
+                        }
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+                return verResult;
+            }
+            
+            function VerManagerPasswordNewUpdate(){
+                var managerPassword = $("#managerPasswordNewUpdate").val();
+                if("" == managerPassword){
+                    $("#managerPasswordNewUpdateError").text("密码不能为空");
+                    return false;
+                }
+                if(managerPassword.length < 6 || managerPassword.length > 20){
+                    $("#managerPasswordNewUpdateError").text("密码需为6-20位字母或数字");
+                    return false;
+                }
+            }
+            
+            function VerManagerPassword2Add(){
+                var managerPassword = $("#managerPasswordAdd").val();
+                var managerPassword2 = $("#managerPassword2Add").val();
+                if(managerPassword2 != managerPassword){
+                    $("#managerPassword2AddError").text("两次密码输入不一致");
+                    return false;
+                }
+            }
+            
+            function VerManagerPassword2Update(){
+                var managerPassword = $("#managerPasswordNewUpdate").val();
+                var managerPassword2 = $("#managerPassword2Update").val();
+                if(managerPassword2 != managerPassword){
+                    $("#managerPassword2UpdateError").text("两次密码输入不一致");
+                    return false;
+                }
+            }
+            
+            function ClearResultDiv(){
+                $("#result").css("display","none");
+                $("#addManagerHiddenDiv").css("display","none");
+                $("#updatePasswordHiddenDiv").css("display","none");
+            }
+            
+            function ShowAddManager(){
+                $("#addManagerHiddenDiv").css("display","");
+            }
+            function ShowUpdatePassword(){
+                $("#updatePasswordHiddenDiv").css("display","");
+            } 
+         
+            function GetManagerList(showPage){
+                $.ajax({
+                    url: "/webnote/managerRest/managerList",
+                    type: 'POST',
+                    async:false,
+                    cache: false,
+                    data: {
+                        showPage : showPage
+                    },
+                    dataType:"json",
+                    success : function(page) {
+                        if(page == null){
+                            alert("非超级管理员，没有权限查看管理员列表");
+                        }else{
+                            var showHtml = "<tr><th colspan=\"3\">管理员列表</th></tr>";
+                            showHtml = showHtml + "<tr><td>序号</td><td>账号</td><td>操作</td></tr>";
+                            var managers = page.managerList;
+                            for(var i=0; i < managers.length; i++){
+                                showHtml = showHtml + "<tr><td>"+ ((page.showPage-1)* page.countOfOnePage + i + 1) + "</td><td>" + managers[i].managerName + "</td><td>";
+                                if(managers[i].managerName != "admin"){
+                                    showHtml = showHtml + "<button id=\"" + managers[i].managerId +"\" class=\"deleteBtn blue\">删除该账户</button>";
+                                }else{
+                                    showHtml = showHtml + "超级管理员";
+                                }
+                                showHtml = showHtml + "</td></tr>";
+                            }
+                            
+                            showHtml = showHtml + "<tr><td colspan=\"3\">";
+                            
+                            for(var i=0; i<page.allPage.length; i++){
+                                if(page.allPage[i] == page.showPage){
+                                    showHtml = showHtml + "<button  class=\"small gray\"> "+ page.allPage[i]+"</button>";
+                                }else{
+                                    showHtml = showHtml + "<button class=\"pageshow small blue\">" +page.allPage[i] + "</button>";
+                                }
+                            }
+                            showHtml = showHtml + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前第<span id=\"showPage\">"+ page.showPage +"</span>页";
+                            showHtml = showHtml + "</td></tr>";  
+                            
+                            $("#result").html(showHtml);
+                            $("#result").css("display","");
+                            $(".deleteBtn").click(function(){
+                                var result = confirm("请确认删除此管理员，删除后无法恢复！！");
+                                if(result){
+                                    DeleteManager($(this).attr("id"));
+                                }
+                            });
+                            $(".pageshow").click(function(){
+                                var showPage = parseInt($(this).text());
+                                GetManagerList(showPage);
+                            });
+                        }
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+            }
+            
+            function DeleteManager(managerId){
+                $.ajax({
+                    url: "/webnote/managerRest/deleteManager",
+                    type: 'POST',
+                    async:false,
+                    cache: false,
+                    data: {
+                        managerId : parseInt(managerId)
+                    },
+                    dataType:"text",
+                    success : function(result) {
+                            alert(result);
+                            GetManagerList(0);
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+            }
+            
+            function GetUserList(showPage, gender, keyword){
+                $.ajax({
+                    url: "/webnote/userManageRest/userList",
+                    type: 'POST',
+                    async:false,
+                    cache: false,
+                    data: {
+                        showPage : showPage,
+                        gender : gender,
+                        keyword : keyword
+                    },
+                    dataType:"json",
+                    success : function(page) {
+                        var showHtml = "<tr><th colspan=\"5\">用户列表</th></tr>";
+                        showHtml = showHtml + "<tr><td>序号</td><td>账号</td><td>昵称</td><td>注册时间</td><td>操作</td></tr>";
+                        var users = page.userList;
+                        for(var i=0; i < users.length; i++){
+                            showHtml = showHtml + "<tr><td>"+ ((page.showPage-1)* page.countOfOnePage + i + 1) + "</td><td>" + users[i].userName + "</td><td>" + users[i].nickName + "</td><td>" + users[i].regTime + "</td><td>";
+                            showHtml = showHtml + "<button id=\"" + users[i].id +"\" class=\"showUserInfoBtn blue\">查看详细信息</button>";
+                            showHtml = showHtml + "</td></tr>";
+                        }
+
+                        showHtml = showHtml + "<tr><td colspan=\"5\">";
+
+                        for(var i=0; i<page.allPage.length; i++){
+                            if(page.allPage[i] == page.showPage){
+                                showHtml = showHtml + "<button  class=\"small gray\"> "+ page.allPage[i]+"</button>";
+                            }else{
+                                showHtml = showHtml + "<button class=\"pageshow small blue\">" +page.allPage[i] + "</button>";
+                            }
+                        }
+                        showHtml = showHtml + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前第<span id=\"showPage\">"+ page.showPage +"</span>页";
+                        showHtml = showHtml + "</td></tr>";  
+
+                        $("#result").html(showHtml);
+                        $("#result").css("display","");
+                        $(".pageshow").click(function(){
+                            var showPage = parseInt($(this).text());
+                            GetUserList(showPage, gender, keyword);
+                        });
+                        $(".showUserInfoBtn").click(function(){
+                            var userId  = parseInt($(this).attr("id"));
+                            ShowUserInfo(userId);
+                        });
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+            }
+            
+            function ShowUserInfo(userId){
+                $.ajax({
+                    url: "/webnote/userManageRest/userInfo",
+                    type: 'POST',
+                    async:false,
+                    cache: false,
+                    data: {
+                        id : userId
+                    },
+                    dataType:"json",
+                    success : function(result) {
+                        $("#nickName").text(result.nickName);
+                        $("#userName").text(result.userName);
+                        $("#email").text(result.email);
+                        $("#cellPhone").text(result.cellPhone);
+                        $("#resume").text(result.resume);
+                        $("#regTime").text(result.regTime);
+                        $("#gender").text(result.gender);
+                        $("#nation").text(result.nation);
+                        $("#highestEducation").text(result.highestEducation);
+                        $("#highestEducationUniversity").text(result.highestEducationUniversity);
+                        $("#secondEducation").text(result.secondEducation);
+                        $("#secondEducationUniversity").text(result.secondEducationUniversity);
+                        $("#interests").text(result.interests);
+                        $("#address").text(result.address);
+                        
+                        $("#userInfo").css("display","");
+                    },
+                    error: function () {
+                        alert("异步请求接受失败");
+                    }
+                });
+            }
+            
+            
+                
+                
+        </script>
+    </head>
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记-管理员</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎管理员： <span th:text=${session.sessionManager.managerName} style="font-size: 20px; color: blueviolet;"></span> 登录网上笔记管理系统!!&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{/webnote/manager/managerPage}" style="color: green;">管理主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{/webnote/manager/managerLogout}" style="color: green;">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div> 
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="maintd">
+                    <div style="float:left; width:820px;height: 750px;">
+                    <div style="float:left;width:200px;height:180px; margin-left: 30px;margin-top: 30px;background: url(/image/background/managerManageDiv.png);">
+                        <table style="width: 200px;margin-top: 30px;">
+                            <tr th:if="${session.sessionManager.managerName == 'admin'}"><th style="text-align: left;text-indent: 10px;">超级管理员权限</th></tr>
+                            <span th:text="${session.sessionManager.managerName}" th:if="${session.sessionManager.managerName == 'admin'}" id="sessionUserName" style="display: none;"></span>
+                            <tr th:if="${session.sessionManager.managerName == 'admin'}"><td><a href="" style="color: green;" id="managerListBtn">管理员列表</a></td></tr>
+                            <tr th:if="${session.sessionManager.managerName == 'admin'}"><td><a href="" style="color: green;" id="addManagerBtn">新增管理员</a></td></tr>
+                            <tr><th style="text-align: left;text-indent: 10px;">管理员管理</th></tr>
+                            <tr><td><a href="" style="color: green;" id="updatePasswordBtn">修改密码</a></td></tr>
+                        </table>
+                    </div>
+                    
+                    <div style="float:left;width:550px;height:180px; margin-left: 40px;margin-top: 30px;background: url(/image/background/usersInfoDiv.png);">
+                        <table style="width: 550px;margin-top: 30px;">
+                            <tr><td>注册用户总数：</td><td th:text="${userResult.totalUserNumber}"></td><td><button id="showUserList" class="blue">用户列表</button></td></tr>
+                            <tr><td>男性用户数：</td><td th:text="${userResult.menNumber}"></td><td><button id="showMenUserList" class="blue">用户列表</button></td></tr>
+                            <tr><td>女性用户数：</td><td th:text="${userResult.womenNumber}"></td><td><button id="showWomenUserList" class="blue">用户列表</button></td></tr>
+                            <tr><td>查询用户(账号, 昵称)：</td><td><input type="text" name="keyword" id="keyword"></td><td><button id="showUserListByKeyword" class="blue">查询用户</button>
+                                </td></tr>
+                        </table>
+                    </div>
+                        
+                    <div style="float:left;width:800px;height:500px; margin-left: 30px;margin-top: 10px;background: url(/image/background/resultDiv.png);">
+                        
+                        <table id="result" style="width: 750px; margin-top:40px; display: none;" class="table1"></table>
+                        
+                        <table id="addManagerHiddenDiv" style="width: 750px;margin-top:40px; display: none;" class="table1">
+                            <form action="" method="post" id="addManagerForm">
+                            <tr><th colspan="3">新增管理员</th></tr>
+                            <tr><td>管理员账号：</td><td>
+                                    <input type="text" name="managerName" id="managerNameAdd" onkeyup="value=value.replace(/[^\w]/ig,'')">
+                                </td>
+                                <td style="width:200px;">
+                                    <span id="managerNameAddError" class="errorspan"></span>
+                                </td></tr>
+                            <tr><td>初始密码：</td><td>
+                                    <input type="password" name="managerPassword" id="managerPasswordAdd" onkeyup="value=value.replace(/[^\w]/ig,'')">
+                                </td>
+                                <td>
+                                    <span id="managerPasswordAddError" class="errorspan"></span>
+                                </td>
+                            </tr>
+                            <tr><td>重复初始密码：</td><td>
+                                    <input type="password" name="managerPassword2" id="managerPassword2Add" onkeyup="value=value.replace(/[^\w]/ig,'')">
+                                </td>
+                                <td>
+                                    <span id="managerPassword2AddError" class="errorspan"></span>
+                                </td>
+                            </tr>
+                            <tr><td colspan="3"><input type="submit" value=" 新 增 管 理 员"></td></tr>
+                            </form>    
+                        </table>
+                        
+                        <table id="updatePasswordHiddenDiv" style="width: 750px;margin-top:40px; display: none;" class="table1">
+                            <tr><th colspan="3">修改管理员密码</th></tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;管理员账号：</td>
+                                <td><span th:text="${session.sessionManager.managerName}"></span></td>
+                                <td style="width:200px;"></td>
+                            </tr>
+                            <form action="" method="post" id="updatePasswordForm">
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;原登录密码：</td>
+                                <td>
+                                    <input type="password" id="managerPasswordUpdate" name="managerPassword" onkeyup="value=value.replace(/[^\w]/ig,'')">
+                                </td>
+                                <td>
+                                    <span id="managerPasswordUpdateError" class="errorspan"></span>
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;新登录密码：</td>
+                                <td>
+                                    <input type="password" id="managerPasswordNewUpdate" name="managerPasswordNew" onkeyup="value=value.replace(/[^\w]/ig,'')">
+                                </td>
+                                <td>
+                                    <span id="managerPasswordNewUpdateError" class="errorspan"></span>
+                                </td>
+                            </tr>
+                            <tr><td>&nbsp;&nbsp;&nbsp;&nbsp;重复新密码：</td>
+                                <td>
+                                    <input type="password" id="managerPassword2Update" name="managerPassword2" onkeyup="value=value.replace(/[^\w]/ig,'')">
+                                </td>
+                                <td>
+                                    <span id="managerPassword2UpdateError" class="errorspan"></span>
+                                </td>
+                            </tr>
+                            <tr><td colspan="3">
+                                    <input type="submit" value="   修  改  密  码   " class="blue medium"></td></tr>
+                            </form>
+                        </table>
+                        
+                    </div>
+                    
+                    <div style="border:blue solid; height: 500px;width:900px;position: fixed; left: 150px; top:150px;background: url(/image/background/greybackground.jpg); display: none;" id="userInfo">
+                        <div style="float:left; width:300px; height: 500px; ">
+                        <table style="width:280px;margin-top:50px;">
+                            <tr><td style="width: 100px;">用户头像:</td><td>
+                                    <img style="width: 150px; height: 150px;">
+                                </td>
+                            </tr>
+                            <tr><td>用户昵称:</td><td><span style="font-size: 20px; color: blueviolet;" id="nickName"></span></td></tr>
+                            <tr><td>用户账户:</td><td><span id="useName"></span></td></tr>
+                            <tr><td>电子邮箱:</td><td><span id="email" ></span></td></tr>
+                            <tr><td>绑定手机:</td><td><span id="cellPhone" ></span></td></tr>
+                            <tr><td>&nbsp;</td><td></td></tr>
+                            <tr><td>个人介绍:</td><td style="text-align: left;text-indent: 18px;font-size: smaller; color: yellowgreen;" id="resume"><span ></span></td></tr>
+                            <tr><td>注册时间:</td><td><span id="regTime"></span></td></tr>
+                        </table>
+                    </div>
+                    <div style="float:left; width:500px; height: 400px;">
+                        <table style="width:280px;margin-top:50px;">
+                            <tr><td>&nbsp;</td><td></td></tr>
+                            <tr><td>性别:</td><td><span style="font-size: 16px; color: blueviolet;" id="gender"></span></td></tr>
+                            <tr><td>民族:</td><td><span style="font-size: 16px; color: blueviolet;" id="nation"></span></td></tr>
+                            <tr><td>最高学历:</td><td><span style="font-size: 16px; color: blueviolet;" id="highestEducation"></span></td></tr>
+                            <tr><td>毕业学校:</td><td><span style="font-size: 16px; color: blueviolet;" id="highestEducationUniversity"></span></td></tr>
+                            <tr><td>第二学历:</td><td><span style="font-size: 16px; color: blueviolet;" id="secondEducation"></span></td></tr>
+                            <tr><td>毕业学校:</td><td><span style="font-size: 16px; color: blueviolet;" id="secondEducationUniversity"></span></td></tr>
+                            <tr><td>个人爱好:</td><td><span style="font-size: 16px; color: blueviolet;" id="interests"></span></td></tr>
+                            <tr><td>所在地:</td><td><span style="font-size: 16px; color: blueviolet;" id="address"></span></td></tr>
+                        </table> 
+                    </div>
+                    <div style="float:left; width:80px; height: 400px;">
+                        <button id="CloseUserInfoDivBtn" style="margin-top: 30px;" class="blue medium">关闭</button>
+                    </div>
+                    </div>    
+                        
+                    </div>
+                    
+                    <div style="float:left;width:250px;height:690px; margin-left: 40px;margin-top: 30px;background: url(/image/background/largeDataDiv.png);">
+                        
+                    </div>
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>

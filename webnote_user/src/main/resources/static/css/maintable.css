@@ -1,0 +1,28 @@
+#maintable{
+    width: 100%;
+    text-align: center;
+}
+#toptd{
+    width: 1200px;
+    text-align: left;
+    
+}
+#topdiv{
+    background: url(/image/titlebackground.jpg);
+    height:120px;
+}
+#maintd{
+    width: 1200px;
+    min-height: 700px;
+    vertical-align: text-top;
+}
+
+#bottomtd{
+    width: 1200px;
+    text-align: left;
+    
+}
+#bottomdiv{
+    background: url(/image/bottombackground.jpg);
+    height:120px;
+}
