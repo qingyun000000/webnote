@@ -89,6 +89,7 @@ public class NoteController {
         
         //根据分页信息查询
         List<ImageNote> imageNotes = imageService.getMyNotesByPage(userId,page);
+        //倒序，让第一张在页面时为最后一张，放在最上层
         Collections.reverse(imageNotes);
         
         //输出结果，转发到列表页

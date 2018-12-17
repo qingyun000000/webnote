@@ -3,55 +3,57 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cn.wuhailong.webnote_note.controller;
+package cn.wuhailong.webnote_RTNote.controller;
 
-import cn.wuhailong.webnote_note.service.ImageNoteService;
 import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * 笔记模块-异步请求处理
+ * 富文本笔记的异步请求
  * @author Administrator
  */
 @RestController
-@RequestMapping("/webnote/noteRest")
-public class NoteRestController {
+public class RTNoteRestController {
     
     /**
-     * 上传文件的异步处理，用于预览
+     * 保存
      * @param file
-     * @param redirectAttributes
      * @param session
      * @return
      */
-    @RequestMapping("/uploadImage")
-    public String uploadImage(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes, HttpSession session) {
+    @RequestMapping("/uploadSimditorImg")
+    public Map uploadSimditorImg(MultipartFile file, HttpSession session){
+        
+        //创建符合simditor要求的返回类型
+        Map<String, Object> json = new HashMap<>();
         
         //判断文件类型
         String inputFileName = file.getOriginalFilename();
         boolean matches = Pattern.matches(".+(.JPEG|.jpeg|.JPG|.jpg|.png|.PNG|.BMP|.bmp|.gif|.GIF)$", inputFileName);
         if(!matches){
-            return "errorType";
+            json.put("success", false);
+            json.put("msg", "上传图片类型错误！");
+            return json;
         }
         
         //判断文件大小
         if(file.getSize() > (800 * 1024)){
-           return "BigSize";
+            json.put("success", false);
+            json.put("msg", "上传图片过大，不能超过800K！");
+            return json;
         }
         
         //获取用户id
@@ -81,9 +83,13 @@ public class NoteRestController {
             out.flush();
             out.close();
         } catch (IOException ex) {
-            Logger.getLogger(NoteRestController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RTNoteRestController.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        
+        json.put("success", true);
+        json.put("file_path", "/image/imageUpload/" + filename);
+        return json;
 
-        return filename;
     }
 }

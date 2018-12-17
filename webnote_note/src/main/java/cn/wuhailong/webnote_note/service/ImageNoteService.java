@@ -17,7 +17,7 @@ import java.util.List;
 public interface ImageNoteService {
 
     /**
-     * 获取心情图片分页信息
+     * 分页查询心情图片
      * @param userId
      * @param page
      * @return
@@ -25,7 +25,7 @@ public interface ImageNoteService {
     public List<ImageNote> getMyNotesByPage(Long userId, Page page);
 
     /**
-     * 分页查询心情图片
+     * 获取心情图片分页信息
      * @param userId
      * @param page
      * @return

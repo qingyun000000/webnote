@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/table1.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <script type="text/javascript">
+            $(function(){
+                $("#deleteBtn").click(function(){
+                    return confirm("确定删除该笔记？删除后无法恢复！！");
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎 <span th:text=${session.sessionUser.nickName} style="font-size: 20px; color: blueviolet;"></span> 登录网上笔记!!<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<a href="main.html" th:href="@{http://localhost:8080/webnote/user/logout}" style="color: green;">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8083/webnote/score/myscore}" style="color: green;">积分系统</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8080/webnote/user/userInfo}" style="color: green;">用户信息</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8081/webnote/note/list}" style="color: green;">笔记主页</a>
+                        </div> 
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><span th:utext="${msg}"></span></td>
+                <td id="maintd">
+                    
+                    <div style="width: 340px;height: 650px;margin-left: 10px; margin-top: 30px;float:left">
+                        <h3>富文本笔记&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="@{/webnote/richNote/addPre}">新增笔记</a></h3>
+                        <div th:each="note,iterStat: ${notes}"  style="width:300px;height: 100px; background: url(/image/BlueTextBorder_300_100.jpg);margin-left: 20px; margin-top: 10px;text-align: left;">
+                            <a href="main.html" th:href="@{/webnote/richNote/list(id=${note.id},showPage=${page.showPage})}" >
+                            <div>
+                                <br/>
+                                <div style="width:200px;height: 60px; text-overflow: ellipsis;overflow: hidden; margin-left: 50px;" th:text="${note.noteTitle}" th:title="${note.noteTitle}">
+                                </div>
+                            </div>
+                            <span th:text="${#dates.format(note.updateTime, 'yyyy-MM-dd HH:mm')}" style="margin-left: 50px;"></span>
+                            <div style="position:relative; left: 270px; top: -30px; width:30px;">
+                                <span th:text="${iterStat.count + (page.showPage-1) * page.countOfOnePage }"></span>
+                            </div>
+                            </a>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <a href="main.html" th:href="@{/webnote/richNote/list(showPage=1)}" th:if="${page.showPage != 1}">首页</a>
+                            <a href="main.html" th:href="@{/webnote/richNote/list(showPage=${page.showPage - 1})}" th:if="${page.showPage != 1}">上页</a>
+                            <span th:each="pageNum : ${page.allPage}">
+                                <a href="main.html" th:href="@{/webnote/richNote/list(showPage=${pageNum})}" th:if="${pageNum != page.showPage}"><button th:text="${pageNum}" class="small blue"></button></a>
+                                <button th:text="${pageNum}" class="small gray" th:if="${pageNum == page.showPage}"></button>
+                            </span>
+                            <a href="main.html" th:href="@{/webnote/richNote/list(showPage=${page.showPage + 1})}" th:if="${page.showPage != page.totalPage}">下页</a>
+                            <a href="main.html" th:href="@{/webnote/richNote/list(showPage=${page.totalPage})}" th:if="${page.showPage != page.totalPage}">尾页</a><br/>
+                            <span style="font-size: smaller; color:green;">
+                                第<span th:text="${page.showPage}"></span>页&nbsp;&nbsp;&nbsp;&nbsp;共<span th:text="${page.totalPage}"></span>页&nbsp;&nbsp;&nbsp;&nbsp;每页<span th:text="${page.countOfOnePage}"></span>条
+                            </span>
+                        </div>
+                                
+                    </div>
+                    
+                    <div style="width: 800px;min-height: 650px; margin-top: 30px;float:left;border: blueviolet solid 1px;">
+                        <h2 th:text="${note.noteTitle}" style="color:blueviolet; height: 0px;"></h2>
+                        <div style="position: relative; top:-20px; left: 280px;">
+                            <a th:href="@{/webnote/richNote/updatePre(id=${note.id})}">编辑笔记</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="deleteBtn" href="@{/webnote/richNote/delete(id=${note.id})}">删除笔记</a>
+                        </div>
+                        <div style="width: 770px;margin-left: 15px;text-align: left;" th:utext="${note.content}">
+                        </div>    
+                    </div>
+                    
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+</html>

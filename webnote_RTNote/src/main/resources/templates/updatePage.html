@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>网上笔记</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link th:href="@{/css/maintable.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/error.css}" rel="stylesheet" type="text/css"/>
+        <link th:href="@{/css/button1.css}" rel="stylesheet" type="text/css"/>
+        <script th:src="@{/jquery/jquery-3.3.1.min.js}" type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" th:href="@{/simditor/styles/simditor.css}"/>
+        <script type="text/javascript" th:src="@{/simditor/scripts/module.js}"></script>
+        <script type="text/javascript" th:src="@{/simditor/scripts/hotkeys.js}"></script>
+        <script type="text/javascript" th:src="@{/simditor/scripts/uploader.js}"></script>
+        <script type="text/javascript" th:src="@{/simditor/scripts/simditor.js}"></script> 
+
+        <script type="text/javascript" th:inline="javascript">
+            $(function(){
+                $("#noteTitle").click(function(){
+                    $("#noteTitleError").text("");
+                });
+                $("#noteTitle").blur(function(){
+                    var noteTitle = $("#noteTitle").val();
+                    if(noteTitle == ""){
+                        $("#noteTitleError").text("标题不能为空");
+                    }
+                    if(noteTitle.length > 20){
+                        $("#noteTitleError").text("长度不超过20个字符");
+                    }
+                    if(!(/^[A-Za-z0-9\u2E80-\u9FFF\s\.\,\/\\@\#\$%……&\*!\?\p{P}]*$/.test(noteTitle))){
+                        $("#noteTitleError").text("出现非法字符");
+                    }
+                });
+                
+                $("#addNoteForm").submit(function(){
+                    var noteTitle = $("#noteTitle").val();
+                    if(noteTitle == ""){
+                        $("#noteTitleError").text("标题不能为空");
+                        return false;
+                    }
+                    if(noteTitle.length > 20){
+                        $("#noteTitleError").text("长度不超过20个字符");
+                        return false;
+                    }
+                    if(!(/^[A-Za-z0-9\u2E80-\u9FFF\s\.\,\/\\@\#\$%……&\*!\?\p{P}]*$/.test(noteTitle))){
+                        $("#noteTitleError").text("出现非法字符");
+                        return false;
+                    }
+                });
+                
+                Simditor.locale = 'zh-CN';//设置中文
+                var editor = new Simditor({ 
+                    textarea: $("#editor"), //textarea的id
+                    placeholder: '',
+                    toolbar:  ['title', 'bold', 'italic', 'underline', 'strikethrough', 'fontScale', 'color', '|', 'ol', 'ul', 'blockquote', 'code', 'table', '|', 'link', 'image', 'hr', '|', 'indent', 'outdent', 'alignment'], //工具条都包含哪些内容
+                    pasteImage: true,//允许粘贴图片
+                    defaultImage: '/simditor/images/title@2x.png',//编辑器插入的默认图片，此处可以删除
+                    upload : {
+                        url : '/uploadSimditorImg', //文件上传的接口地址
+                        params: null, //键值对,指定文件上传接口的额外参数,上传的时候随文件一起提交
+                        fileKey:'file', //服务器端获取文件数据的参数名 
+                        connectionCount: 3,
+                        leaveConfirm: '正在上传文件'
+                    }       
+                });
+                
+                ContextTextOnblur();
+                
+                $(".simditor-body").html([[${note.content}]]);
+            });
+
+            
+            function ContextTextOnblur() {
+            	$(document).on("blur", "#contextText", function() {
+                    var content = $(".simditor-body").html();
+                    $("#content").val(content);
+                });
+            }
+            
+            
+        </script>
+    </head>
+    <body>
+        <table id="maintable">
+            <tr>
+                <td></td>
+                <td id="toptd">
+                    <div id="topdiv">
+                        <span style="font-size:35px; color: blue;margin-left:300px;margin-top: 20px;">网上笔记</span>
+                        <div style="margin-left:350px;margin-top: 30px;">
+                            欢迎 <span th:text=${session.sessionUser.nickName} style="font-size: 20px; color: blueviolet;"></span> 登录网上笔记!!<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<a href="main.html" th:href="@{http://localhost:8080/webnote/user/logout}" style="color: green;">退出登录</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8083/webnote/score/myscore}" style="color: green;">积分系统</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8080/webnote/user/userInfo}" style="color: green;">用户信息</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8081/webnote/note/list}" style="color: green;">笔记主页</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <a href="main.html" th:href="@{http://localhost:8085/webnote/richNote/list}" style="color: green;">富文本笔记</a>
+                        </div>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="maintd" style="background: url(/image/notebackground.jpg);">
+                    
+                    <div>
+                        <h2 style="color:blue;">新增笔记</h2>
+                        <form th:action="@{/webnote/richNote/update}" method="post" id="addNoteForm">
+                            <table style="width: 800px;margin-left: 180px;">
+                                <tr><td style="text-align: left;color: gray;font-size: 16px;">笔记标题:</td></tr>
+                                <tr><td style="text-align: left;"><input id="noteTitle" type="text" name="noteTitle" style="width: 800px;height: 40px; color: blue;font-size: 18px;" th:value="${note.noteTitle}"></td></tr>
+                                <tr><td> &nbsp;<span id="noteTitleError" class="errorspan"></span></td></tr>
+                                <tr><td style="text-align: left;color: gray;font-size: 16px;">笔记内容:</td></tr>
+                                <tr><td>
+                                    <div id="contextText" style="text-align: left;">
+                                        <textarea id="editor" autofocus="autofocus" disabled="disabled"></textarea>
+                                    </div>
+                                </td></tr>
+                                <tr><td><input type="text" id="content" name="content" hidden="hidden"></td></tr>
+                                <tr><td><input type="submit" value="修 改 笔 记" class="blue medium" style="width: 200px; height: 40px;"></td></tr>
+                            </table>
+                        </form>
+                    </div>   
+                    
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td id="bottomtd">
+                    <div id="bottomdiv">
+                        
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </body>
+
+        
+
+</html>

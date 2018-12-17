@@ -1,0 +1,26 @@
+.table1{
+    width: 950px;
+    min-height: 30px;
+    border-collapse: collapse;
+    margin: 30px auto;
+}
+.table1 th{
+    background: #829bff;
+    color: #ffffff;
+    min-height: 30px;
+}
+.table1 td{
+    background: #e2e8ff;
+    color: black;
+    text-align: center;
+    min-height: 28px;
+}
+.table1 .left{
+    text-align: left;
+    text-indent: 33px;
+}
+
+.table1 .input{
+    width:200px;
+    height: 25px;
+}
