@@ -19,7 +19,7 @@ and open the template in the editor.
         <script type="text/javascript" th:src="@{/simditor/scripts/uploader.js}"></script>
         <script type="text/javascript" th:src="@{/simditor/scripts/simditor.js}"></script> 
 
-        <script type="text/javascript">
+        <script type="text/javascript" th:inline="javascript">
             $(function(){
                 $("#noteTitle").click(function(){
                     $("#noteTitleError").text("");
@@ -37,21 +37,6 @@ and open the template in the editor.
                     }
                 });
                 
-                $("#addNoteForm").submit(function(){
-                    var noteTitle = $("#noteTitle").val();
-                    if(noteTitle == ""){
-                        $("#noteTitleError").text("标题不能为空");
-                        return false;
-                    }
-                    if(noteTitle.length > 20){
-                        $("#noteTitleError").text("长度不超过20个字符");
-                        return false;
-                    }
-                    if(!(/^[A-Za-z0-9\u2E80-\u9FFF\s\.\,\/\\@\#\$%……&\*!\?\p{P}]*$/.test(noteTitle))){
-                        $("#noteTitleError").text("出现非法字符");
-                        return false;
-                    }
-                });
                 
                 Simditor.locale = 'zh-CN';//设置中文
                 var editor = new Simditor({ 
@@ -70,6 +55,47 @@ and open the template in the editor.
                 });
                 
                 ContextTextOnblur();
+                
+                $(".simditor-body").html([[${content}]]);
+                
+                $("#contextText").click(function(){
+                    $("#contentError").text("");
+                });
+                $(editor).blur(function(){
+                    var content = $(".simditor-body").html();
+                    if(content.length < 10 + 7){
+                        $("#contentError").text("小于10个不带格式字符，请使用文字笔记");
+                    }
+                    if(content.length > 10000){
+                        $("#contentError").text("长度不超过10000个字符");
+                    }
+                });
+                
+                $("#addNoteForm").submit(function(){
+                    var noteTitle = $("#noteTitle").val();
+                    if(noteTitle == ""){
+                        $("#noteTitleError").text("标题不能为空");
+                        return false;
+                    }
+                    if(noteTitle.length > 20){
+                        $("#noteTitleError").text("长度不超过20个字符");
+                        return false;
+                    }
+                    if(!(/^[A-Za-z0-9\u2E80-\u9FFF\s\.\,\/\\@\#\$%……&\*!\?\p{P}]*$/.test(noteTitle))){
+                        $("#noteTitleError").text("出现非法字符");
+                        return false;
+                    }
+                    var content = $(".simditor-body").html();
+                    if(content.length < 10 + 7){
+                        $("#contentError").text("小于10个不带格式字符，请使用文字笔记");
+                        return false;
+                    }
+                    if(content.length > 10000){
+                        $("#contentError").text("长度不超过10000个字符");
+                        return false;
+                    }
+                    
+                });
             });
 
             
@@ -79,7 +105,6 @@ and open the template in the editor.
                     $("#content").val(content);
                 });
             }
-            
             
         </script>
     </head>
@@ -111,15 +136,29 @@ and open the template in the editor.
                         <form th:action="@{/webnote/richNote/add}" method="post" id="addNoteForm">
                             <table style="width: 800px;margin-left: 180px;">
                                 <tr><td style="text-align: left;color: gray;font-size: 16px;">笔记标题:</td></tr>
-                                <tr><td style="text-align: left;"><input id="noteTitle" type="text" name="noteTitle" style="width: 800px;height: 40px; color: blue;font-size: 18px;"></td></tr>
-                                <tr><td> &nbsp;<span id="noteTitleError" class="errorspan"></span></td></tr>
+                                <tr>
+                                    <td style="text-align: left;">
+                                        <input id="noteTitle" type="text" name="noteTitle" style="width: 800px;height: 40px; color: blue;font-size: 18px;" th:if="${result == null}">
+                                        <input id="noteTitle" type="text" name="noteTitle" style="width: 800px;height: 40px; color: blue;font-size: 18px;" th:if="${result != null}" th:value="${result.noteTitle}">
+                                    </td>
+                                </tr>
+                                <tr><td> &nbsp;
+                                        <span id="noteTitleError" class="errorspan" th:if="${reuslt == null}"></span>
+                                        <span id="noteTitleError" class="errorspan" th:if="${result != null}" th:text="${result.noteTitleError}"></span>
+                                    </td>
+                                </tr>
                                 <tr><td style="text-align: left;color: gray;font-size: 16px;">笔记内容:</td></tr>
                                 <tr><td>
                                     <div id="contextText" style="text-align: left;">
-                                        <textarea id="editor" autofocus="autofocus" disabled="disabled"></textarea>
+                                        <textarea id="editor" disabled="disabled"></textarea>
                                     </div>
                                 </td></tr>
                                 <tr><td><input type="text" id="content" name="content" hidden="hidden"></td></tr>
+                                <tr><td> &nbsp;
+                                        <span id="contentError" class="errorspan" th:if="${reuslt == null}"></span>
+                                        <span id="contentError" class="errorspan" th:if="${result != null}" th:text="${result.contentError}"></span>
+                                    </td>
+                                </tr>
                                 <tr><td><input type="submit" value="新 增 笔 记" class="blue medium" style="width: 200px; height: 40px;"></td></tr>
                             </table>
                         </form>

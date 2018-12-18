@@ -7,6 +7,9 @@ package cn.wuhailong.webnote_RTNote.service;
 
 import cn.wuhailong.webnote_RTNote.domain.dto.Page;
 import cn.wuhailong.webnote_RTNote.domain.pojo.RichNote;
+import cn.wuhailong.webnote_RTNote.exception.RichNoteNullException;
+import cn.wuhailong.webnote_RTNote.exception.UserErrorException;
+import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.util.List;
 
 /**
@@ -43,4 +46,23 @@ public interface RichNoteService {
      * @return
      */
     public RichNote load(Long id);
+
+    /**
+     * 删除笔记
+     * @param note
+     * @param sessionUser
+     * @return 
+     * @throws RichNoteNullException
+     * @throws UserErrorException
+     */
+    public RichNote delete(RichNote note, User sessionUser) throws RichNoteNullException, UserErrorException;
+
+    /**
+     * 修改笔记
+     * @param note
+     * @param sessionUser
+     * @throws RichNoteNullException
+     * @throws UserErrorException
+     */
+    public void updateRichNote(RichNote note, User sessionUser) throws RichNoteNullException, UserErrorException;
 }

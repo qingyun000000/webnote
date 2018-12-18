@@ -8,10 +8,14 @@ package cn.wuhailong.webnote_RTNote.service.impl;
 import cn.wuhailong.webnote_RTNote.dao.RichNoteDao;
 import cn.wuhailong.webnote_RTNote.domain.dto.Page;
 import cn.wuhailong.webnote_RTNote.domain.pojo.RichNote;
+import cn.wuhailong.webnote_RTNote.exception.RichNoteNullException;
+import cn.wuhailong.webnote_RTNote.exception.UserErrorException;
 import cn.wuhailong.webnote_RTNote.service.RichNoteService;
 import cn.wuhailong.webnote_RTNote.tools.RichNoteLoggerTool;
+import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -59,8 +63,39 @@ public class RichNoteServiceImpl implements RichNoteService{
         return richNoteDao.findByUserId(userId, pageable);
     }
     
+    @Override
     public RichNote load(Long id){
         return richNoteDao.getOne(id);
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public RichNote delete(RichNote note, User sessionUser) throws RichNoteNullException, UserErrorException {
+        RichNote get = richNoteDao.getOne(note.getId());
+        if(get == null){
+            throw new RichNoteNullException("笔记不存在");
+        }
+        if(!Objects.equals(get.getUserId(), sessionUser.getId())){
+            throw new UserErrorException("用户信息错误");
+        }
+        richNoteDao.delete(get);
+        return get;
+    }
+
+    @Override
+    public void updateRichNote(RichNote note, User sessionUser) throws RichNoteNullException, UserErrorException {
+        RichNote get = richNoteDao.getOne(note.getId());
+        if(get == null){
+            throw new RichNoteNullException("笔记不存在");
+        }
+        if(!Objects.equals(get.getUserId(), sessionUser.getId())){
+            throw new UserErrorException("用户信息错误");
+        }
+        get.setNoteTitle(note.getNoteTitle());
+        get.setContent(note.getContent());
+        get.setUpdateTime(new Date());
+        
+        richNoteDao.save(get);
     }
     
     

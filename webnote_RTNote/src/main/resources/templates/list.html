@@ -78,7 +78,7 @@ and open the template in the editor.
                     <div style="width: 800px;min-height: 650px; margin-top: 30px;float:left;border: blueviolet solid 1px;">
                         <h2 th:text="${note.noteTitle}" style="color:blueviolet; height: 0px;"></h2>
                         <div style="position: relative; top:-20px; left: 280px;">
-                            <a th:href="@{/webnote/richNote/updatePre(id=${note.id})}">编辑笔记</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="deleteBtn" href="@{/webnote/richNote/delete(id=${note.id})}">删除笔记</a>
+                            <a th:href="@{/webnote/richNote/updatePre(id=${note.id})}">编辑笔记</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a id="deleteBtn" th:href="@{/webnote/richNote/delete(id=${note.id})}">删除笔记</a>
                         </div>
                         <div style="width: 770px;margin-left: 15px;text-align: left;" th:utext="${note.content}">
                         </div>    
