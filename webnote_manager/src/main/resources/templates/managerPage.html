@@ -404,7 +404,7 @@ and open the template in the editor.
                         showHtml = showHtml + "<tr><td>序号</td><td>账号</td><td>昵称</td><td>注册时间</td><td>操作</td></tr>";
                         var users = page.userList;
                         for(var i=0; i < users.length; i++){
-                            showHtml = showHtml + "<tr><td>"+ ((page.showPage-1)* page.countOfOnePage + i + 1) + "</td><td>" + users[i].userName + "</td><td>" + users[i].nickName + "</td><td>" + users[i].regTime + "</td><td>";
+                            showHtml = showHtml + "<tr><td>"+ ((page.showPage-1)* page.countOfOnePage + i + 1) + "</td><td>" + users[i].userName + "</td><td>" + users[i].nickName + "</td><td>" + users[i].regTime.substring(0,10) + "</td><td>";
                             showHtml = showHtml + "<button id=\"" + users[i].id +"\" class=\"showUserInfoBtn blue\">查看详细信息</button>";
                             showHtml = showHtml + "</td></tr>";
                         }
@@ -457,6 +457,7 @@ and open the template in the editor.
                         $("#regTime").text(result.regTime);
                         $("#gender").text(result.gender);
                         $("#nation").text(result.nation);
+                        $("#birthday").text(result.birthday);
                         $("#highestEducation").text(result.highestEducation);
                         $("#highestEducationUniversity").text(result.highestEducationUniversity);
                         $("#secondEducation").text(result.secondEducation);
@@ -608,6 +609,7 @@ and open the template in the editor.
                             <tr><td>&nbsp;</td><td></td></tr>
                             <tr><td>性别:</td><td><span style="font-size: 16px; color: blueviolet;" id="gender"></span></td></tr>
                             <tr><td>民族:</td><td><span style="font-size: 16px; color: blueviolet;" id="nation"></span></td></tr>
+                            <tr><td>生日:</td><td><span style="font-size: 16px; color: blueviolet;" id="birthday"></span></td></tr>
                             <tr><td>最高学历:</td><td><span style="font-size: 16px; color: blueviolet;" id="highestEducation"></span></td></tr>
                             <tr><td>毕业学校:</td><td><span style="font-size: 16px; color: blueviolet;" id="highestEducationUniversity"></span></td></tr>
                             <tr><td>第二学历:</td><td><span style="font-size: 16px; color: blueviolet;" id="secondEducation"></span></td></tr>

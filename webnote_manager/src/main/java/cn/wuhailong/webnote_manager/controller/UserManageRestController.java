@@ -10,6 +10,8 @@ import cn.wuhailong.webnote_manager.domain.pojo.UserListPage;
 import cn.wuhailong.webnote_manager.domain.pojo.UserSuppleInfo;
 import cn.wuhailong.webnote_manager.domain.vo.UserManageResult;
 import cn.wuhailong.webnote_manager.service.UserManageService;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,11 +66,13 @@ public class UserManageRestController {
             result.setUserName(load.getUserName());
             result.setNickName(load.getNickName());
             result.setEmail(load.getEmail());
-            result.setRegTime(load.getRegTime());
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            result.setRegTime(df.format(load.getRegTime()));
         }
         if(info != null){
             result.setGender(info.getGender());
-            result.setBirthday(info.getBirthday());
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            result.setBirthday(df.format(info.getBirthday()));
             result.setAddress(info.getAddress());
             result.setCellPhone(info.getCellPhone());
             result.setHighestEducation(info.getHighestEducation());
