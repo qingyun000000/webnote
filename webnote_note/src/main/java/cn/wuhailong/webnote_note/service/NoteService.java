@@ -9,6 +9,8 @@ package cn.wuhailong.webnote_note.service;
 import cn.wuhailong.webnote_note.domain.pojo.Note;
 import cn.wuhailong.webnote_note.domain.dto.Page;
 import cn.wuhailong.webnote_note.exception.NoteNullException;
+import cn.wuhailong.webnote_note.exception.UserErrorException;
+import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.util.List;
 
 
@@ -51,14 +53,16 @@ public interface NoteService {
      * 修改文本笔记
      * @param note
      * @throws NoteNullException
+     * @throws cn.wuhailong.webnote_note.exception.UserErrorException
      */
-    public void update(Note note) throws NoteNullException;
+    public void update(Note note, User user) throws NoteNullException, UserErrorException;
 
     /**
      * 删除文本笔记
      * @param note
      * @throws NoteNullException
+     * @throws cn.wuhailong.webnote_note.exception.UserErrorException
      */
-    public void delete(Note note) throws NoteNullException;
+    public void delete(Note note, User user) throws NoteNullException, UserErrorException;
     
 }

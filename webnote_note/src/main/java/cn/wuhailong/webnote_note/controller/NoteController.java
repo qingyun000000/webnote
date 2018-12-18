@@ -17,6 +17,7 @@ import cn.wuhailong.webnote_note.service.NoteService;
 import cn.wuhailong.webnote_note.tools.NoteVerTool;
 import cn.wuhailong.webnote_note.tools.TextTool;
 import cn.wuhailong.webnote_note.domain.vo.NoteResult;
+import cn.wuhailong.webnote_note.exception.UserErrorException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -190,16 +191,14 @@ public class NoteController {
             //note.setContent(TextTool.textProcess(note.getContent()));
             
             //补全用户id
-            User sessionUser = (User)session.getAttribute("sessionUser");
-            Long userId = sessionUser.getId();
-            note.setUserId(userId);
+            User user = (User)session.getAttribute("sessionUser");
             
             try {
-                noteService.update(note);
+                noteService.update(note, user);
                 redirectAttributes.addAttribute("msgSuccess", "成功修改文本笔记:" + note.getNoteTitle()+"!!");
                 return "redirect:/webnote/note/list";
-            } catch (NoteNullException ex) {
-                result.setNoteTitleError("文本笔记不存在或者已被删除");
+            } catch (NoteNullException | UserErrorException ex) {
+                result.setNoteTitleError("无法删除文本笔记，因为:" +ex.getMessage());
             }
             
             
@@ -222,12 +221,12 @@ public class NoteController {
      */
     @RequestMapping("/delete")
     public String delete(Note note, HttpSession session, RedirectAttributes redirectAttributes){
-        
+        User user = (User) session.getAttribute("sessionUser");
         try {
-            noteService.delete(note);
+            noteService.delete(note, user);
             redirectAttributes.addAttribute("msgSuccess", "成功删除文本笔记:" + note.getNoteTitle()+"!!");
-        } catch (NoteNullException ex) {
-            redirectAttributes.addAttribute("msgSuccess", "无法删除文本笔记，该笔记不存在或已被删除!!");
+        } catch (NoteNullException | UserErrorException ex) {
+            redirectAttributes.addAttribute("msgSuccess", "无法删除文本笔记，因为：" + ex.getMessage());
         }
         
         
@@ -359,12 +358,12 @@ public class NoteController {
      */
     @RequestMapping("/deleteImageNote")
     public String deleteImageNote(ImageNote imageNote, HttpSession session, RedirectAttributes redirectAttributes){
-        
+        User user = (User) session.getAttribute("sessionUser");
         try {
-            imageService.delete(imageNote);
+            imageService.delete(imageNote, user);
             redirectAttributes.addAttribute("msgSuccess", "成功删除心情图片!!");
-        } catch (ImageNoteNullException ex) {
-            redirectAttributes.addAttribute("msgSuccess", "无法删除心情图片，该心情图片不存在!!");
+        } catch (ImageNoteNullException | UserErrorException ex) {
+            redirectAttributes.addAttribute("msgSuccess", "无法删除心情图片，因为：" +ex.getMessage());
         }
         
         return "redirect:/webnote/note/list";
@@ -428,7 +427,7 @@ public class NoteController {
                     filename = user.getId() + "_"+ new Date().getTime() + "_" + filename;
 
                     imageNote.setImgUrl(filename);
-                    imageService.updateImageNote(imageNote);
+                    imageService.updateImageNote(imageNote, user);
 
                     String filePath = ClassUtils.getDefaultClassLoader().getResource("").getPath()+"static/image/imageNote/";
                     File targetfile = new File(filePath);
@@ -443,7 +442,7 @@ public class NoteController {
                     out.close();
                 }else{
                     //图片没有更新
-                    imageService.updateImageNote(imageNote);
+                    imageService.updateImageNote(imageNote, user);
                 }
                 
                 
@@ -458,7 +457,8 @@ public class NoteController {
                 Logger.getLogger(NoteController.class.getName()).log(Level.SEVERE, null, ex);
                 result.setImageError("服务器出现错误，保存失败，请重试。");
             } catch (ImageNoteNullException ex) {
-                Logger.getLogger(NoteController.class.getName()).log(Level.SEVERE, null, ex);
+                result.setImageError(ex.getMessage());
+            } catch (UserErrorException ex) {
                 result.setImageError(ex.getMessage());
             }
         }

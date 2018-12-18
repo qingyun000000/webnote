@@ -9,10 +9,13 @@ import cn.wuhailong.webnote_note.dao.ImageNoteDao;
 import cn.wuhailong.webnote_note.domain.pojo.ImageNote;
 import cn.wuhailong.webnote_note.domain.dto.Page;
 import cn.wuhailong.webnote_note.exception.ImageNoteNullException;
+import cn.wuhailong.webnote_note.exception.UserErrorException;
 import cn.wuhailong.webnote_note.service.ImageNoteService;
 import cn.wuhailong.webnote_note.tools.NoteLoggerTool;
+import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -95,13 +98,15 @@ public class ImageNoteServiceImpl implements ImageNoteService{
      */
     @Override
     @Transactional(rollbackOn = Exception.class) 
-    public void delete(ImageNote imageNote) throws ImageNoteNullException {
-        
-        if(imageDao.getOne(imageNote.getId()) == null){
-            throw new ImageNoteNullException("心情图片不存在");
+    public void delete(ImageNote imageNote, User user) throws ImageNoteNullException, UserErrorException {
+        ImageNote get = imageDao.getOne(imageNote.getId());
+        if(get == null){
+            throw new ImageNoteNullException("心情图片不存在或者已被删除");
         }
-        
-        imageDao.deleteById(imageNote.getId());
+        if(!Objects.equals(get.getUserId(), user.getId())){
+            throw new UserErrorException("用户信息错误");
+        }
+        imageDao.delete(get);
     }
     
     /**
@@ -111,12 +116,15 @@ public class ImageNoteServiceImpl implements ImageNoteService{
      */
     @Override
     @Transactional(rollbackOn = Exception.class) 
-    public void updateImageNote(ImageNote imageNote) throws ImageNoteNullException {
+    public void updateImageNote(ImageNote imageNote, User user) throws ImageNoteNullException, UserErrorException {
         
         ImageNote oldImageNote = imageDao.getOne(imageNote.getId());
         
         if(oldImageNote == null){
-            throw new ImageNoteNullException("心情图片不存在");
+            throw new ImageNoteNullException("心情图片不存在或者已被删除");
+        }
+        if(!Objects.equals(oldImageNote.getUserId(), user.getId())){
+            throw new UserErrorException("用户信息错误");
         }
         //补充信息，保存
         oldImageNote.setUpdateTime(new Date());

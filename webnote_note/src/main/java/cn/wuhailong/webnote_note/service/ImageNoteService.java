@@ -8,6 +8,8 @@ package cn.wuhailong.webnote_note.service;
 import cn.wuhailong.webnote_note.domain.pojo.ImageNote;
 import cn.wuhailong.webnote_note.domain.dto.Page;
 import cn.wuhailong.webnote_note.exception.ImageNoteNullException;
+import cn.wuhailong.webnote_note.exception.UserErrorException;
+import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.util.List;
 
 /**
@@ -49,15 +51,17 @@ public interface ImageNoteService {
      * 删除心情图片
      * @param imageNote
      * @throws ImageNoteNullException
+     * @throws cn.wuhailong.webnote_note.exception.UserErrorException
      */
-    public void delete(ImageNote imageNote) throws ImageNoteNullException;
+    public void delete(ImageNote imageNote, User user) throws ImageNoteNullException, UserErrorException;
 
     /**
      * 修改心情图片
      * @param imageNote
      * @throws ImageNoteNullException
+     * @throws cn.wuhailong.webnote_note.exception.UserErrorException
      */
-    public void updateImageNote(ImageNote imageNote) throws ImageNoteNullException;
+    public void updateImageNote(ImageNote imageNote, User user) throws ImageNoteNullException, UserErrorException;
 
     
 }

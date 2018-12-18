@@ -10,10 +10,13 @@ import cn.wuhailong.webnote_note.dao.NoteDao;
 import cn.wuhailong.webnote_note.domain.pojo.Note;
 import cn.wuhailong.webnote_note.domain.dto.Page;
 import cn.wuhailong.webnote_note.exception.NoteNullException;
+import cn.wuhailong.webnote_note.exception.UserErrorException;
 import cn.wuhailong.webnote_note.service.NoteService;
 import cn.wuhailong.webnote_note.tools.NoteLoggerTool;
+import cn.wuhailong.webnote_user.domain.pojo.User;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -97,14 +100,16 @@ public class NoteServiceImpl implements NoteService{
      */
     @Override
     @Transactional(rollbackOn = Exception.class) 
-    public void update(Note note) throws NoteNullException {
+    public void update(Note note, User user) throws NoteNullException, UserErrorException {
         
         //获取，判断
         Note oldnote = noteDao.getOne(note.getId());
         if(oldnote == null){
             throw new NoteNullException("笔记不存在或者已被删除");
         }
-            
+        if(!Objects.equals(oldnote.getUserId(), user.getId())){
+            throw new UserErrorException("用户信息错误");
+        }    
         //补充信息，保存
         note.setCreatTime(oldnote.getCreatTime());
         note.setUserId(oldnote.getUserId());
@@ -121,11 +126,15 @@ public class NoteServiceImpl implements NoteService{
      */
     @Override
     @Transactional(rollbackOn = Exception.class) 
-    public void delete(Note note) throws NoteNullException {
-        if(noteDao.getOne(note.getId()) == null){
+    public void delete(Note note, User user) throws NoteNullException, UserErrorException {
+        Note get = noteDao.getOne(note.getId());
+        if(get == null){
             throw new NoteNullException("笔记不存在或者已被删除");
         }
-        noteDao.deleteById(note.getId());
+        if(!Objects.equals(get.getUserId(), user.getId())){
+            throw new UserErrorException("用户信息错误");
+        }
+        noteDao.delete(get);
     }
 
     
