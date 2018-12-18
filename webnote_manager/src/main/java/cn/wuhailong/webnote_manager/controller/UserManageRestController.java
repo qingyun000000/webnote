@@ -50,7 +50,6 @@ public class UserManageRestController {
             page.setShowPage(showPage);
         }
         List<User> userList = userManageService.getUserListByPage(page, gender, keyword);
-        System.out.println("chaxyn" + userList.size());
         page.setUserList(userList);
         return page;
     }
