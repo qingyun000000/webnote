@@ -97,7 +97,7 @@ public class RichNoteServiceImpl implements RichNoteService{
         
         richNoteDao.save(get);
         
-        RichNoteLoggerTool.writeNoteLog(note.getUserId() + "", "updateNote");
+        RichNoteLoggerTool.writeNoteLog(note.getUserId() + "", "updateRichNote");
     }
     
     
