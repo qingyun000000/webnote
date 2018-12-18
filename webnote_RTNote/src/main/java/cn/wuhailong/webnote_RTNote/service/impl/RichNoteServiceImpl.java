@@ -41,7 +41,7 @@ public class RichNoteServiceImpl implements RichNoteService{
         richNoteDao.save(note);
         
         //输出日志，同于积分统计
-        RichNoteLoggerTool.writeNoteLog(note.getUserId() + "", "addImageNote");
+        RichNoteLoggerTool.writeNoteLog(note.getUserId() + "", "addRichNote");
     }
 
     @Override
@@ -96,6 +96,8 @@ public class RichNoteServiceImpl implements RichNoteService{
         get.setUpdateTime(new Date());
         
         richNoteDao.save(get);
+        
+        RichNoteLoggerTool.writeNoteLog(note.getUserId() + "", "updateNote");
     }
     
     
